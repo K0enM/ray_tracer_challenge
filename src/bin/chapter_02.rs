@@ -3,9 +3,10 @@ extern crate ray_tracer_challenge as raytracer;
 use std::fs::write;
 
 use raytracer::canvas::*;
+use raytracer::png::ToPNG;
 use raytracer::tuple::*;
 use raytracer::color::*;
-use raytracer::ppm::*;
+use raytracer::ppm::ToPPM;
 
 #[derive(Debug)]
 struct Environment {
@@ -108,6 +109,9 @@ fn main() {
   println!("Writing ./output.ppm");
   let ppm = canvas.to_ppm();
   write("./output.ppm", ppm).expect("Could not write ouput.ppm to disk.");
+  println!("Writing ./output.png");
+  let png = canvas.to_png();
+  write("./output.png", png).expect("Could not write output.png to disk");
 
   println!("Everything done.");
 }

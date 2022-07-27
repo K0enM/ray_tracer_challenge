@@ -1,4 +1,4 @@
-use crate::{color::Color, two_dimensional::TwoDimensional, ppm::ToPPM, rgb::ToRgbA32};
+use crate::{color::Color, two_dimensional::TwoDimensional, ppm::ToPPM, rgb::ToRgbA32, png::ToPNG};
 
 #[derive(Debug)]
 pub struct Canvas {
@@ -29,7 +29,7 @@ impl Canvas {
     &self.pixels
   }
 
-  fn pixels_as_rgb(&self) -> Vec<u8> {
+  fn pixels_as_rgba32(&self) -> Vec<u8> {
     self.pixels.iter()
       .flat_map(|c| c.to_rgba32())
       .collect()
@@ -51,7 +51,7 @@ impl ToPPM for Canvas {
       let mut last_image_row: usize = 0;
       let mut column_count: usize = 0;
 
-      let rgb_colors: Vec<u8> = self.pixels_as_rgb();
+      let rgb_colors: Vec<u8> = self.pixels_as_rgba32();
 
       let pixel_data 
         = rgb_colors
@@ -99,6 +99,21 @@ impl ToPPM for Canvas {
         .chain(pixel_data)
         .chain(String::from("\n").into_bytes())
         .collect()
+  }
+}
+
+impl ToPNG for Canvas {
+  fn to_png(self) -> Vec<u8> {
+      let mut data = Vec::new();
+      let mut encoder = png::Encoder::new(&mut data, self.width() as u32, self.height() as u32);
+      encoder.set_color(png::ColorType::Rgba);
+      encoder.set_depth(png::BitDepth::Eight);
+      let mut writer = encoder.write_header().unwrap();
+      writer.write_image_data(&self.pixels_as_rgba32()).unwrap();
+
+      drop(writer);
+
+      data
   }
 }
 
