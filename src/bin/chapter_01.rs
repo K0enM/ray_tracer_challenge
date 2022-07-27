@@ -1,4 +1,4 @@
-extern crate ray_tracker_challenge as raytracer;
+extern crate ray_tracer_challenge as raytracer;
 
 use raytracer::tuple::*;
 
