@@ -45,6 +45,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "hybrid-array"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "afda7293a2c24c0c81bc1342ffc8522c41ea053f6da3d55200852123f8e1b348"
+dependencies = [
+ "typenum",
+]
+
+[[package]]
 name = "miniz_oxide"
 version = "0.5.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -69,5 +78,12 @@ dependencies = [
 name = "ray_tracer_challenge"
 version = "0.1.0"
 dependencies = [
+ "hybrid-array",
  "png",
 ]
+
+[[package]]
+name = "typenum"
+version = "1.15.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "dcf81ac59edc17cc8697ff311e8f5ef2d99fcbd9817b34cec66f90b6c3dfd987"
