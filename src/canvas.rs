@@ -29,10 +29,6 @@ impl Canvas {
         y * self.width + x
     }
 
-    fn pixels(&self) -> &Vec<Color> {
-        &self.pixels
-    }
-
     fn pixels_as_rgba32(&self) -> Vec<u8> {
         self.pixels.iter().flat_map(|c| c.to_rgba32()).collect()
     }

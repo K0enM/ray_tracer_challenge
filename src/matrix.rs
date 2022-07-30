@@ -104,7 +104,7 @@ impl<const D: usize> FuzzyEq<Self> for Matrix<D> {
             }
         }
 
-        return true;
+        true
     }
 
     fn fuzzy_ne(&self, other: Self) -> bool {

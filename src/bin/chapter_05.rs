@@ -1,4 +1,5 @@
 use ray_tracer_challenge::canvas::*;
+use ray_tracer_challenge::matrix::Matrix;
 use ray_tracer_challenge::ray::*;
 use ray_tracer_challenge::sphere::*;
 use ray_tracer_challenge::tuple::*;
@@ -20,7 +21,8 @@ fn main() {
 
   let mut canvas = Canvas::new(canvas_size, canvas_size);
 
-  let sphere = Sphere::default();
+  let mut sphere = Sphere::default();
+  sphere.set_transform(Matrix::shearing(1.0, 0.0, 0.0, 0.0, 0.0, 0.0) * Matrix::scaling(0.5, 1.0, 1.0));
 
   println!("Raytracing {} pixels. Please be patient...", canvas_size.pow(2));
 
