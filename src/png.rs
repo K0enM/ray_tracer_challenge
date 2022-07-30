@@ -1,3 +1,3 @@
 pub trait ToPNG {
-  fn to_png(self) -> Vec<u8>;
+    fn to_png(self) -> Vec<u8>;
 }

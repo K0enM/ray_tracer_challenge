@@ -1,4 +1,4 @@
 pub trait TwoDimensional {
-  fn width(&self) -> usize;
-  fn height(&self) -> usize;
+    fn width(&self) -> usize;
+    fn height(&self) -> usize;
 }

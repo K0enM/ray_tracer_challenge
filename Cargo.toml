@@ -7,4 +7,5 @@ edition = "2021"
 
 [dependencies]
 hybrid-array = "0.1.0"
+indicatif = "0.17.0"
 png = "0.17.5"
