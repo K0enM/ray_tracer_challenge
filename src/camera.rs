@@ -1,6 +1,6 @@
 use std::sync::Mutex;
 
-use crate::{matrix::Matrix, ray::Ray, tuple::Tuple, world::World, canvas::Canvas, png::ToPNG};
+use crate::{matrix::Matrix, ray::Ray, tuple::Tuple, world::World, canvas::Canvas};
 use indicatif::ProgressBar;
 use itertools::Itertools;
 use rayon::prelude::*;
