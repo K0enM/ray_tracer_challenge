@@ -2,7 +2,7 @@ use std::ops::{Add, Div, Mul, Neg, Sub};
 
 use crate::util::FuzzyEq;
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub struct Tuple {
     pub x: f64,
     pub y: f64,
@@ -65,6 +65,10 @@ impl Tuple {
             self.z * other.x - self.x * other.z,
             self.x * other.y - self.y * other.x,
         )
+    }
+
+    pub fn reflect(&self, normal: Tuple) -> Self {
+        *self - normal * 2.0 * self.dot(normal)
     }
 }
 
@@ -135,6 +139,8 @@ impl Div<f64> for Tuple {
 
 #[cfg(test)]
 mod tests {
+    use crate::assert_fuzzy_eq;
+
     use super::*;
 
     #[test]
@@ -360,5 +366,28 @@ mod tests {
         let actual = b.cross(a);
 
         assert!(actual.fuzzy_eq(expected));
+    }
+
+    #[test]
+    fn reflecting_vector_at_45_deg() {
+        let v = Tuple::vector(1.0, -1.0, 0.0);
+        let n = Tuple::vector(0.0, 1.0, 0.0);
+
+        let expected = Tuple::vector(1.0, 1.0, 0.0);
+        let actual = v.reflect(n);
+
+        assert_fuzzy_eq!(expected, actual);
+    }
+
+    #[test]
+    fn reflecting_vector_of_slanted_surface() {
+        let v = Tuple::vector(0.0, -1.0, 0.0);
+        let sqrt_2_2 = (2.0_f64.sqrt()) / 2.0;
+        let n = Tuple::vector(sqrt_2_2, sqrt_2_2, 0.0);
+
+        let expected = Tuple::vector(1.0, 0.0, 0.0);
+        let actual = v.reflect(n);
+
+        assert_fuzzy_eq!(expected, actual);
     }
 }

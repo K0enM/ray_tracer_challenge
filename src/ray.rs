@@ -1,4 +1,4 @@
-use crate::{tuple::Tuple, util::FuzzyEq, matrix::Matrix};
+use crate::{matrix::Matrix, tuple::Tuple, util::FuzzyEq};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Ray {
@@ -33,7 +33,10 @@ impl Ray {
     }
 
     pub fn transform(&self, m: Matrix<4>) -> Self {
-        Self { origin: m * self.origin, direction: m * self.direction }
+        Self {
+            origin: m * self.origin,
+            direction: m * self.direction,
+        }
     }
 }
 

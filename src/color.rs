@@ -2,7 +2,7 @@ use std::ops::{Add, Mul, Sub};
 
 use crate::{rgb::ToRgbA32, util::FuzzyEq};
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub struct Color {
     red: f64,
     green: f64,
