@@ -1,11 +1,11 @@
-use crate::{color::Color, tuple::Tuple, util::FuzzyEq};
+use crate::{color::Color, tuple::Tuple};
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub enum LightType {
     Point,
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub struct Light {
     typ: LightType,
     pub position: Tuple,
@@ -33,9 +33,9 @@ impl Light {
 #[cfg(test)]
 mod tests {
     use crate::assert_fuzzy_eq;
-
+    use crate::util::FuzzyEq;
     use super::*;
-
+ 
     #[test]
     fn point_light_has_position_and_intensity() {
         let intensity = Color::white();

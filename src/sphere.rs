@@ -28,6 +28,10 @@ impl Sphere {
         }
     }
 
+    pub fn with_material(m: Material) -> Self {
+        Self { transform: Matrix::identity(), material: m }
+    }
+
     pub fn intersect(&self, ray: Ray) -> Intersections {
         let object_space_ray = ray.transform(self.transform.inverse());
         let sphere_to_ray = object_space_ray.origin - Tuple::point(0.0, 0.0, 0.0);

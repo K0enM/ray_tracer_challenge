@@ -326,6 +326,22 @@ impl Matrix<4> {
 
         t * self
     }
+
+    pub fn view_transform(from: Tuple, to: Tuple, up: Tuple) -> Matrix<4> {
+        let forward = (to - from).normalize();
+        let up_normalized = up.normalize();
+        let left = forward.cross(up_normalized);
+        let true_up = left.cross(forward);
+
+        let orientation = Matrix::from([
+            [left.x, left.y, left.z, 0.0],
+            [true_up.x, true_up.y, true_up.z, 0.0],
+            [-forward.x, -forward.y, -forward.z, 0.0],
+            [0.0, 0.0, 0.0, 1.0],
+        ]);
+
+        orientation * Matrix::translation(-from.x, -from.y, -from.z)
+    }
 }
 
 impl Mul<Tuple> for Matrix<4> {
@@ -1021,5 +1037,54 @@ mod tests {
         let actual = t * p;
 
         assert_fuzzy_eq!(expected, actual);
+    }
+
+    #[test]
+    fn view_transformation_matrix_default_orientation() {
+        let from = Tuple::point(0.0, 0.0, 0.0);
+        let to = Tuple::point(0.0, 0.0, -1.0);
+        let up = Tuple::vector(0.0, 1.0, 0.0);
+
+        let t = Matrix::view_transform(from, to, up);
+
+        assert_fuzzy_eq!(Matrix::identity(), t);
+    }
+
+    #[test]
+    fn view_transformation_matrix_positive_z_direction() {
+        let from = Tuple::point(0.0, 0.0, 0.0);
+        let to = Tuple::point(0.0, 0.0, 1.0);
+        let up = Tuple::vector(0.0, 1.0, 0.0);
+
+        let t = Matrix::view_transform(from, to, up);
+
+        assert_fuzzy_eq!(Matrix::scaling(-1.0, 1.0, -1.0), t);
+    }
+
+    #[test]
+    fn view_transformation_moves_the_world() {
+        let from = Tuple::point(0.0, 0.0, 8.0);
+        let to = Tuple::point(0.0, 0.0, 0.0);
+        let up = Tuple::vector(0.0, 1.0, 0.0);
+
+        let t = Matrix::view_transform(from, to, up);
+
+        assert_fuzzy_eq!(Matrix::translation(0.0, 0.0, -8.0), t);
+    }
+
+    #[test]
+    fn arbitrary_view_transformation() {
+        let from = Tuple::point(1.0, 3.0, 2.0);
+        let to = Tuple::point(4.0, -2.0, 8.0);
+        let up = Tuple::vector(1.0, 1.0, 0.0);
+
+        let expected = Matrix::from([
+            [-0.50709, 0.50709, 0.67612, -2.36643],
+            [0.76772, 0.60609, 0.12122, -2.82843],
+            [-0.35857, 0.59761, -0.71714, 0.00000],
+            [0.00000, 0.00000, 0.00000, 1.00000],
+        ]);
+        let t = Matrix::view_transform(from, to, up);
+        assert_fuzzy_eq!(expected, t);
     }
 }

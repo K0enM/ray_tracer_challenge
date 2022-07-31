@@ -2,11 +2,11 @@ use crate::{color::Color, light::Light, tuple::Tuple, util::FuzzyEq};
 
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub struct Material {
-    color: Color,
-    ambient: f64,
-    diffuse: f64,
-    specular: f64,
-    shininess: f64,
+    pub color: Color,
+    pub ambient: f64,
+    pub diffuse: f64,
+    pub specular: f64,
+    pub shininess: f64,
 }
 
 impl Material {
@@ -20,11 +20,11 @@ impl Material {
         }
     }
 
-    #[allow(clippy::field_reassign_with_default)]
     pub fn with_color(color: Color) -> Self {
-        let mut c = Self::default();
-        c.color = color;
-        c
+        Self {
+            color,
+            ..Default::default()
+        }
     }
 
     pub fn lighting(&self, point: Tuple, light: Light, eyev: Tuple, normalv: Tuple) -> Color {

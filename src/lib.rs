@@ -15,3 +15,5 @@ pub mod sphere;
 pub mod tuple;
 pub mod two_dimensional;
 pub mod util;
+pub mod world;
+pub mod camera;

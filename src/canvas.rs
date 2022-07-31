@@ -1,6 +1,6 @@
 use crate::{color::Color, png::ToPNG, ppm::ToPPM, rgb::ToRgbA32, two_dimensional::TwoDimensional};
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Canvas {
     pub width: usize,
     pub height: usize,

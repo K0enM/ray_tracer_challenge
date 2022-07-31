@@ -1,9 +1,18 @@
-use crate::sphere::Sphere;
+use crate::{sphere::Sphere, ray::Ray, tuple::Tuple};
 
 #[derive(Debug, Copy, Clone, PartialEq, PartialOrd)]
 pub struct Intersection {
     pub t: f64,
     pub object: Sphere,
+}
+
+#[derive(Debug, Copy, Clone, PartialEq, PartialOrd)]
+pub struct ComputedIntersection {
+    pub intersection: Intersection,
+    pub point: Tuple,
+    pub eyev: Tuple,
+    pub normalv: Tuple,
+    pub inside: bool,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -29,15 +38,39 @@ impl Intersections {
     }
 }
 
+impl IntoIterator for Intersections {
+    type Item = Intersection;
+    type IntoIter = std::vec::IntoIter<Self::Item>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.intersections.into_iter()
+    }
+}
+
 impl Intersection {
     pub fn new(t: f64, object: Sphere) -> Self {
         Self { t, object }
+    }
+
+    pub fn as_computed(&self, ray: Ray) -> ComputedIntersection {
+        let point = ray.position(self.t);
+        let eyev = -ray.direction;
+        let mut normalv = self.object.normal_at(point);
+
+        let mut inside = false;
+
+        if (normalv.dot(eyev)) < 0.0 {
+            inside = true;
+            normalv = -normalv;
+        }
+
+        ComputedIntersection { intersection: *self, point, eyev, normalv, inside }
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::{ray::Ray, sphere::Sphere, tuple::Tuple};
+    use crate::{ray::Ray, sphere::Sphere, tuple::Tuple, assert_fuzzy_eq, util::FuzzyEq};
 
     use super::*;
 
@@ -124,5 +157,42 @@ mod tests {
 
         assert!(i.is_some());
         assert_eq!(d, i.unwrap())
+    }
+
+    #[test]
+    fn precomputing_state_of_intersection() {
+        let r = Ray::new(Tuple::point(0.0, 0.0, -5.0), Tuple::vector(0.0, 0.0, 1.0));
+        let s = Sphere::default();
+        let i = Intersection::new(4.0, s);
+        let comp = i.as_computed(r);
+
+        assert!(comp.intersection.t.fuzzy_eq(i.t));
+        assert_fuzzy_eq!(i.object, comp.intersection.object);
+        assert_fuzzy_eq!(Tuple::point(0.0, 0.0, -1.0), comp.point);
+        assert_fuzzy_eq!(Tuple::vector(0.0, 0.0, -1.0), comp.eyev);
+        assert_fuzzy_eq!(Tuple::vector(0.0, 0.0, -1.0), comp.normalv);
+    }
+
+    #[test]
+    fn hit_when_intersection_occurs_on_outside() {
+        let r = Ray::new(Tuple::point(0.0, 0.0, -5.0), Tuple::vector(0.0, 0.0, 1.0));
+        let s = Sphere::default();
+        let i = Intersection::new(4.0, s);
+        let comp = i.as_computed(r);
+
+        assert!(!comp.inside);
+    }
+
+    #[test]
+    fn hit_when_intersection_is_inside() {
+        let r = Ray::new(Tuple::point(0.0, 0.0, 0.0), Tuple::vector(0.0, 0.0, 1.0));
+        let s = Sphere::default();
+        let i = Intersection::new(1.0, s);
+        let comp = i.as_computed(r);
+
+        assert!(comp.inside);
+        assert_fuzzy_eq!(Tuple::point(0.0, 0.0, 1.0), comp.point);
+        assert_fuzzy_eq!(Tuple::vector(0.0, 0.0, -1.0), comp.eyev);
+        assert_fuzzy_eq!(Tuple::vector(0.0, 0.0, -1.0), comp.normalv);
     }
 }
