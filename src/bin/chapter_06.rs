@@ -1,5 +1,7 @@
 use ray_tracer_challenge::canvas::*;
 use ray_tracer_challenge::color::*;
+use ray_tracer_challenge::light::Light;
+use ray_tracer_challenge::material::Material;
 use ray_tracer_challenge::matrix::Matrix;
 use ray_tracer_challenge::png::*;
 use ray_tracer_challenge::ray::*;
@@ -17,14 +19,11 @@ fn main() {
     let canvas_size = 1024;
     let canvas_pixel_world_size = wall_size / canvas_size as f64;
 
-    let yellow = Color::new(1.0, 1.0, 0.0);
-
     let mut canvas = Canvas::new(canvas_size, canvas_size);
 
-    let mut sphere = Sphere::default();
-    sphere.set_transform(
-        Matrix::shearing(1.0, 0.0, 0.0, 0.0, 0.0, 0.0) * Matrix::scaling(0.5, 1.0, 1.0),
-    );
+    let material = Material::with_color(Color::new(1.0, 0.2, 1.0));
+    let sphere = Sphere::new(Matrix::identity(), material);
+    let light = Light::point(Tuple::point(-10.0, 10.0, -10.0), Color::white());
 
     println!(
         "Raytracing {} pixels. Please be patient...",
@@ -44,9 +43,17 @@ fn main() {
             let ray = Ray::new(ray_origin, (wall_point - ray_origin).normalize());
 
             let xs = sphere.intersect(ray);
+            let hit = xs.hit();
 
-            if xs.hit() != None {
-                canvas.write_pixel(x, y, yellow);
+            if hit != None {
+                let hit = hit.unwrap();
+                let point = ray.position(hit.t);
+                let normal = hit.object.normal_at(point);
+                let eye = -ray.direction;
+
+                let color = hit.object.material.lighting(point, light, eye, normal);
+
+                canvas.write_pixel(x, y, color);
             }
             progress.inc(1);
         }
