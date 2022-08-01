@@ -13,18 +13,13 @@ fn main() {
   let floor_transform = Matrix::scaling(10.0, 0.01, 10.0);
   let floor = Sphere::new(floor_transform, floor_material);
 
-  let left_wall_transform = Matrix::identity()
-    .translate(0.0, 0.0, 5.0)
-    .rotate_y(-PI / 4.0)
-    .rotate_x(PI / 2.0)
-    .scale(10.0, 0.01, 10.0);
+  let left_wall_transform = Matrix::translation(0.0, 0.0, 5.0)
+    * Matrix::rotation_y(-PI / 4.0) * Matrix::rotation_x(PI / 2.0) * Matrix::scaling(10.0, 0.01, 10.0);
   let left_wall = Sphere::new(left_wall_transform, floor_material);
 
-  let right_wall_transform = Matrix::identity()
-    .translate(0.0, 0.0, 5.0)
-    .rotate_y(PI / 4.0)
-    .rotate_x(PI / 2.0)
-    .scale(10.0, 0.01, 10.0);
+  let right_wall_transform = Matrix::translation(0.0, 0.0, 5.0)
+    * Matrix::rotation_y(PI / 4.0) * Matrix::rotation_x(PI / 2.0)
+    * Matrix::scaling(10.0 ,0.01, 10.0);
   let right_wall = Sphere::new(right_wall_transform, floor_material);
 
   let middle_material = Material {
