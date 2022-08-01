@@ -1,4 +1,4 @@
-use crate::{sphere::Sphere, ray::Ray, tuple::Tuple};
+use crate::{ray::Ray, sphere::Sphere, tuple::Tuple, util::EPSILON};
 
 #[derive(Debug, Copy, Clone, PartialEq, PartialOrd)]
 pub struct Intersection {
@@ -10,6 +10,7 @@ pub struct Intersection {
 pub struct ComputedIntersection {
     pub intersection: Intersection,
     pub point: Tuple,
+    pub over_point: Tuple,
     pub eyev: Tuple,
     pub normalv: Tuple,
     pub inside: bool,
@@ -64,13 +65,29 @@ impl Intersection {
             normalv = -normalv;
         }
 
-        ComputedIntersection { intersection: *self, point, eyev, normalv, inside }
+        let over_point = point + normalv * EPSILON;
+
+        ComputedIntersection {
+            intersection: *self,
+            point,
+            over_point,
+            eyev,
+            normalv,
+            inside,
+        }
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::{ray::Ray, sphere::Sphere, tuple::Tuple, assert_fuzzy_eq, util::FuzzyEq};
+    use crate::{
+        assert_fuzzy_eq,
+        matrix::Matrix,
+        ray::Ray,
+        sphere::Sphere,
+        tuple::Tuple,
+        util::{FuzzyEq, EPSILON},
+    };
 
     use super::*;
 
@@ -194,5 +211,16 @@ mod tests {
         assert_fuzzy_eq!(Tuple::point(0.0, 0.0, 1.0), comp.point);
         assert_fuzzy_eq!(Tuple::vector(0.0, 0.0, -1.0), comp.eyev);
         assert_fuzzy_eq!(Tuple::vector(0.0, 0.0, -1.0), comp.normalv);
+    }
+
+    #[test]
+    fn hit_should_offset_point() {
+        let r = Ray::new(Tuple::point(0.0, 0.0, -5.0), Tuple::vector(0.0, 0.0, 1.0));
+        let s = Sphere::with_transform(Matrix::translation(0.0, 0.0, 1.0));
+        let i = Intersection::new(5.0, s);
+        let comp = i.as_computed(r);
+
+        assert!(comp.over_point.z < -EPSILON / 2.0);
+        assert!(comp.point.z > comp.over_point.z);
     }
 }

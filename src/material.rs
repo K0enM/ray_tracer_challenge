@@ -27,7 +27,14 @@ impl Material {
         }
     }
 
-    pub fn lighting(&self, point: Tuple, light: Light, eyev: Tuple, normalv: Tuple) -> Color {
+    pub fn lighting(
+        &self,
+        point: Tuple,
+        light: Light,
+        eyev: Tuple,
+        normalv: Tuple,
+        in_shadow: bool,
+    ) -> Color {
         let effective_color = self.color * light.intensity;
         let lightv = (light.position - point).normalize();
         let ambient = effective_color * self.ambient;
@@ -51,7 +58,11 @@ impl Material {
             }
         }
 
-        ambient + diffuse + specular
+        if in_shadow {
+            ambient
+        } else {
+            ambient + diffuse + specular
+        }
     }
 }
 
@@ -101,7 +112,7 @@ mod tests {
         let light = Light::point(Tuple::point(0.0, 0.0, -10.0), Color::white());
 
         let expected = Color::new(1.9, 1.9, 1.9);
-        let actual = material.lighting(position, light, eyev, normalv);
+        let actual = material.lighting(position, light, eyev, normalv, false);
 
         assert_fuzzy_eq!(expected, actual);
     }
@@ -117,7 +128,7 @@ mod tests {
         let light = Light::point(Tuple::point(0.0, 0.0, -10.0), Color::white());
 
         let expected = Color::new(1.0, 1.0, 1.0);
-        let actual = material.lighting(position, light, eyev, normalv);
+        let actual = material.lighting(position, light, eyev, normalv, false);
 
         assert_fuzzy_eq!(expected, actual);
     }
@@ -132,7 +143,7 @@ mod tests {
         let light = Light::point(Tuple::point(0.0, 10.0, -10.0), Color::white());
 
         let expected = Color::new(0.7364, 0.7364, 0.7364);
-        let actual = material.lighting(position, light, eyev, normalv);
+        let actual = material.lighting(position, light, eyev, normalv, false);
 
         assert_fuzzy_eq!(expected, actual);
     }
@@ -148,7 +159,7 @@ mod tests {
         let light = Light::point(Tuple::point(0.0, 10.0, -10.0), Color::white());
 
         let expected = Color::new(1.6364, 1.6364, 1.6364);
-        let actual = material.lighting(position, light, eyev, normalv);
+        let actual = material.lighting(position, light, eyev, normalv, false);
 
         assert_fuzzy_eq!(expected, actual);
     }
@@ -163,7 +174,23 @@ mod tests {
         let light = Light::point(Tuple::point(0.0, 0.0, 10.0), Color::white());
 
         let expected = Color::new(0.1, 0.1, 0.1);
-        let actual = material.lighting(position, light, eyev, normalv);
+        let actual = material.lighting(position, light, eyev, normalv, false);
+
+        assert_fuzzy_eq!(expected, actual);
+    }
+
+    #[test]
+    fn lighting_with_surface_in_shadow() {
+        let material = Material::default();
+        let position = Tuple::point(0.0, 0.0, 0.0);
+
+        let eyev = Tuple::vector(0.0, 0.0, -1.0);
+        let normalv = Tuple::vector(0.0, 0.0, -1.0);
+        let light = Light::point(Tuple::point(0.0, 0.0, -10.0), Color::white());
+        let in_shadow = true;
+
+        let expected = Color::new(0.1, 0.1, 0.1);
+        let actual = material.lighting(position, light, eyev, normalv, in_shadow);
 
         assert_fuzzy_eq!(expected, actual);
     }

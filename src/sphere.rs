@@ -29,7 +29,10 @@ impl Sphere {
     }
 
     pub fn with_material(m: Material) -> Self {
-        Self { transform: Matrix::identity(), material: m }
+        Self {
+            transform: Matrix::identity(),
+            material: m,
+        }
     }
 
     pub fn intersect(&self, ray: Ray) -> Intersections {

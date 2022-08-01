@@ -32,10 +32,10 @@ impl Light {
 
 #[cfg(test)]
 mod tests {
+    use super::*;
     use crate::assert_fuzzy_eq;
     use crate::util::FuzzyEq;
-    use super::*;
- 
+
     #[test]
     fn point_light_has_position_and_intensity() {
         let intensity = Color::white();

@@ -51,7 +51,10 @@ fn main() {
                 let normal = hit.object.normal_at(point);
                 let eye = -ray.direction;
 
-                let color = hit.object.material.lighting(point, light, eye, normal);
+                let color = hit
+                    .object
+                    .material
+                    .lighting(point, light, eye, normal, false);
 
                 canvas.write_pixel(x, y, color);
             }
