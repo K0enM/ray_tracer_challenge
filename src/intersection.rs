@@ -1,4 +1,10 @@
-use crate::{ray::Ray, sphere::{Sphere, SphereBuilder}, tuple::Tuple, util::EPSILON, shape::{Shape, ShapeFuncs}};
+use crate::{
+    ray::Ray,
+    shape::{Shape, ShapeFuncs},
+    sphere::{Sphere, SphereBuilder},
+    tuple::Tuple,
+    util::EPSILON,
+};
 
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct Intersection {
@@ -216,7 +222,12 @@ mod tests {
     #[test]
     fn hit_should_offset_point() {
         let r = Ray::new(Tuple::point(0.0, 0.0, -5.0), Tuple::vector(0.0, 0.0, 1.0));
-        let s = Shape::from(SphereBuilder::default().transform(Matrix::translation(0.0, 0.0, 1.0)).build().unwrap());
+        let s = Shape::from(
+            SphereBuilder::default()
+                .transform(Matrix::translation(0.0, 0.0, 1.0))
+                .build()
+                .unwrap(),
+        );
         let i = Intersection::new(5.0, s);
         let comp = i.as_computed(r);
 

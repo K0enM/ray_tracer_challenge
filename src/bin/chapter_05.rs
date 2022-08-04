@@ -23,11 +23,10 @@ fn main() {
     let mut canvas = Canvas::new(canvas_size, canvas_size);
 
     let sphere: Shape = SphereBuilder::default()
-                                .transform(Matrix::shearing(1.0, 0.0, 0.0, 0.0, 0.0, 0.0) * Matrix::scaling(0.5, 1.0, 1.0))
-                                .build()
-                                .unwrap()
-                                .into();
-
+        .transform(Matrix::shearing(1.0, 0.0, 0.0, 0.0, 0.0, 0.0) * Matrix::scaling(0.5, 1.0, 1.0))
+        .build()
+        .unwrap()
+        .into();
 
     println!(
         "Raytracing {} pixels. Please be patient...",

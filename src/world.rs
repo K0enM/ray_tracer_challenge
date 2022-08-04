@@ -5,9 +5,9 @@ use crate::{
     material::Material,
     matrix::Matrix,
     ray::Ray,
+    shape::{Shape, ShapeFuncs},
     sphere::{Sphere, SphereBuilder},
     tuple::Tuple,
-    shape::{ShapeFuncs, Shape}
 };
 
 #[derive(Debug, Clone, PartialEq, PartialOrd, Builder)]
@@ -78,14 +78,15 @@ impl Default for World {
         let material = Material::new(Color::new(0.8, 1.0, 0.6), 0.1, 0.7, 0.2, 200.0);
 
         let s1 = SphereBuilder::default()
-                            .material(material)
-                            .build()
-                            .unwrap().into();
+            .material(material)
+            .build()
+            .unwrap()
+            .into();
         let s2 = SphereBuilder::default()
-                                .transform(Matrix::scaling(0.5, 0.5, 0.5))
-                                .build()
-                                .unwrap()
-                                .into();
+            .transform(Matrix::scaling(0.5, 0.5, 0.5))
+            .build()
+            .unwrap()
+            .into();
 
         Self::new(vec![s1, s2], light)
     }
@@ -102,15 +103,15 @@ mod tests {
         let light = Light::point(Tuple::point(-10.0, 10.0, -10.0), Color::white());
         let material = Material::new(Color::new(0.8, 1.0, 0.6), 0.1, 0.7, 0.2, 200.0);
         let s1 = SphereBuilder::default()
-                            .material(material)
-                            .build()
-                            .unwrap()
-                            .into();
+            .material(material)
+            .build()
+            .unwrap()
+            .into();
         let s2 = SphereBuilder::default()
-                            .transform(Matrix::scaling(0.5, 0.5, 0.5))
-                            .build()
-                            .unwrap()
-                            .into();  
+            .transform(Matrix::scaling(0.5, 0.5, 0.5))
+            .build()
+            .unwrap()
+            .into();
 
         let w = World::default();
 
@@ -162,9 +163,16 @@ mod tests {
 
     #[test]
     fn shade_hit_is_given_intersection_in_shadow() {
-        let w = World { 
+        let w = World {
             light_source: Light::point(Tuple::point(0.0, 0.0, -10.0), Color::white()),
-            objects: vec![SphereBuilder::default().build().unwrap().into(), SphereBuilder::default().transform(Matrix::translation(0.0, 0.0, 10.0)).build().unwrap().into()],
+            objects: vec![
+                SphereBuilder::default().build().unwrap().into(),
+                SphereBuilder::default()
+                    .transform(Matrix::translation(0.0, 0.0, 10.0))
+                    .build()
+                    .unwrap()
+                    .into(),
+            ],
         };
 
         let r = Ray::new(Tuple::point(0.0, 0.0, 5.0), Tuple::vector(0.0, 0.0, 1.0));
@@ -196,11 +204,19 @@ mod tests {
             ambient: 1.0,
             ..Default::default()
         };
-        let shapes = vec![SphereBuilder::default().material(mat).build().unwrap().into(),SphereBuilder::default().material(mat).build().unwrap().into()];
-        let w = WorldBuilder::default()
-            .objects(shapes)
-            .build()
-            .unwrap();
+        let shapes = vec![
+            SphereBuilder::default()
+                .material(mat)
+                .build()
+                .unwrap()
+                .into(),
+            SphereBuilder::default()
+                .material(mat)
+                .build()
+                .unwrap()
+                .into(),
+        ];
+        let w = WorldBuilder::default().objects(shapes).build().unwrap();
 
         let inner = w.objects[1];
 

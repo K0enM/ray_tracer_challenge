@@ -3,8 +3,9 @@ use crate::{
     material::Material,
     matrix::Matrix,
     ray::Ray,
+    shape::{Shape, ShapeFuncs},
     tuple::Tuple,
-    util::FuzzyEq, shape::{ShapeFuncs, Shape},
+    util::FuzzyEq,
 };
 
 #[derive(Debug, Copy, Clone, PartialEq, PartialOrd, Builder, Default)]
@@ -56,7 +57,7 @@ impl ShapeFuncs for Sphere {
         self.transform
     }
 }
- 
+
 impl FuzzyEq<Self> for Sphere {
     fn fuzzy_eq(&self, other: Self) -> bool {
         if self.transform.fuzzy_eq(other.transform) {
@@ -141,10 +142,7 @@ mod tests {
     #[test]
     fn changing_sphere_transformation() {
         let t = Matrix::translation(2.0, 3.0, 4.0);
-        let mut s = SphereBuilder::default()
-            .transform(t)
-            .build()
-            .unwrap();
+        let s = SphereBuilder::default().transform(t).build().unwrap();
         assert_fuzzy_eq!(t, s.transform);
     }
 
@@ -201,7 +199,8 @@ mod tests {
     fn computing_the_normal_on_a_translated_sphere() {
         let s = SphereBuilder::default()
             .transform(Matrix::translation(0.0, 1.0, 0.0))
-            .build().unwrap();
+            .build()
+            .unwrap();
         let p = Tuple::point(0.0, 1.70711, -0.70711);
         let n = s.normal_at(p);
 
@@ -214,7 +213,8 @@ mod tests {
     fn computing_the_normal_on_a_scaled_and_rotated_sphere() {
         let s = SphereBuilder::default()
             .transform(Matrix::scaling(1.0, 0.5, 1.0) * Matrix::rotation_z(PI / 5.0))
-            .build().unwrap();
+            .build()
+            .unwrap();
 
         let sqrt2_over_2 = (2.0_f64).sqrt() / 2.0;
         let p = Tuple::point(0.0, sqrt2_over_2, -sqrt2_over_2);
@@ -234,9 +234,7 @@ mod tests {
     #[test]
     fn sphere_may_be_assigned_material() {
         let m = Material::new(Color::black(), 1.0, 2.0, 3.0, 4.0);
-        let s = SphereBuilder::default()
-            .material(m)
-            .build().unwrap();
+        let s = SphereBuilder::default().material(m).build().unwrap();
         assert_fuzzy_eq!(m, s.material);
     }
 }

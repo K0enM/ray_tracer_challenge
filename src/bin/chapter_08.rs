@@ -11,7 +11,7 @@ use ray_tracer_challenge::{
     shape::Shape,
     sphere::{Sphere, SphereBuilder},
     tuple::Tuple,
-    world::World,
+    world::World, plane::PlaneBuilder,
 };
 
 fn main() {
@@ -21,36 +21,13 @@ fn main() {
         ..Default::default()
     };
 
-    let floor_transform = Matrix::scaling(10.0, 0.01, 10.0);
-
-    let floor = SphereBuilder::default()
+    let floor: Shape = PlaneBuilder::default()
         .material(floor_material)
-        .transform(floor_transform)
+        .transform(Matrix::translation(0.0, 0.0, 0.0))
         .build()
         .unwrap()
         .into();
-
-    let left_wall_transform = Matrix::translation(0.0, 0.0, 5.0)
-        * Matrix::rotation_y(-PI / 4.0)
-        * Matrix::rotation_x(PI / 2.0)
-        * Matrix::scaling(10.0, 0.01, 10.0);
-    let left_wall = SphereBuilder::default()
-        .material(floor_material)
-        .transform(left_wall_transform)
-        .build()
-        .unwrap()
-        .into();
-
-    let right_wall_transform = Matrix::translation(0.0, 0.0, 5.0)
-        * Matrix::rotation_y(PI / 4.0)
-        * Matrix::rotation_x(PI / 2.0)
-        * Matrix::scaling(10.0, 0.01, 10.0);
-    let right_wall = SphereBuilder::default()
-        .material(floor_material)
-        .transform(right_wall_transform)
-        .build()
-        .unwrap()
-        .into();
+        
 
     let middle_material = Material {
         color: Color::new(0.5, 1.0, 0.1),
@@ -97,7 +74,7 @@ fn main() {
     let light = Light::point(Tuple::point(-10.0, 10.0, -10.0), Color::white());
 
     let world = World::new(
-        vec![floor, left_wall, right_wall, left, middle, right],
+        vec![floor, left, middle, right],
         light,
     );
     let mut camera = Camera::new(4096, 4096, PI / 3.0);
