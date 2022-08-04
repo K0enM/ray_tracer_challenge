@@ -1,6 +1,6 @@
 use crate::{color::Color, light::Light, tuple::Tuple, util::FuzzyEq};
 
-#[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
+#[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Builder)]
 pub struct Material {
     pub color: Color,
     pub ambient: f64,

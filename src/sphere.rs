@@ -4,38 +4,19 @@ use crate::{
     matrix::Matrix,
     ray::Ray,
     tuple::Tuple,
-    util::FuzzyEq,
+    util::FuzzyEq, shape::{ShapeFuncs, Shape},
 };
 
-#[derive(Debug, Copy, Clone, PartialEq, PartialOrd)]
+#[derive(Debug, Copy, Clone, PartialEq, PartialOrd, Builder, Default)]
 pub struct Sphere {
+    #[builder(default)]
     pub transform: Matrix<4>,
+    #[builder(default)]
     pub material: Material,
 }
 
-impl Sphere {
-    pub fn new(t: Matrix<4>, m: Material) -> Self {
-        Self {
-            transform: t,
-            material: m,
-        }
-    }
-
-    pub fn with_transform(t: Matrix<4>) -> Self {
-        Self {
-            transform: t,
-            material: Material::default(),
-        }
-    }
-
-    pub fn with_material(m: Material) -> Self {
-        Self {
-            transform: Matrix::identity(),
-            material: m,
-        }
-    }
-
-    pub fn intersect(&self, ray: Ray) -> Intersections {
+impl ShapeFuncs for Sphere {
+    fn intersect(&self, ray: Ray) -> Intersections {
         let object_space_ray = ray.transform(self.transform.inverse());
         let sphere_to_ray = object_space_ray.origin - Tuple::point(0.0, 0.0, 0.0);
 
@@ -48,36 +29,34 @@ impl Sphere {
             return Intersections::new(vec![]);
         }
 
-        let t1 = Intersection::new((-b - discriminant.sqrt()) / (2.0 * a), *self);
-        let t2 = Intersection::new((-b + discriminant.sqrt()) / (2.0 * a), *self);
+        let t1 = Intersection::new((-b - discriminant.sqrt()) / (2.0 * a), Shape::from(*self));
+        let t2 = Intersection::new((-b + discriminant.sqrt()) / (2.0 * a), Shape::from(*self));
 
         Intersections::new(vec![t1, t2])
     }
 
-    pub fn set_transform(&mut self, t: Matrix<4>) {
-        self.transform = t
-    }
-
-    pub fn set_material(&mut self, m: Material) {
-        self.material = m
-    }
-
-    pub fn normal_at(&self, world_point: Tuple) -> Tuple {
-        let object_point = self.transform.inverse() * world_point;
+    fn normal_at(&self, world_point: Tuple) -> Tuple {
+        let object_point = self.world_point_to_object_point(world_point);
         let object_normal = object_point - Tuple::point(0.0, 0.0, 0.0);
         let mut world_normal = self.transform.inverse().tranpose() * object_normal;
 
         world_normal.w = 0.0;
         world_normal.normalize()
     }
-}
 
-impl Default for Sphere {
-    fn default() -> Self {
-        Self::new(Matrix::identity(), Material::default())
+    fn world_point_to_object_point(&self, world_point: Tuple) -> Tuple {
+        self.transform.inverse() * world_point
+    }
+
+    fn material(&self) -> Material {
+        self.material
+    }
+
+    fn transform(&self) -> Matrix<4> {
+        self.transform
     }
 }
-
+ 
 impl FuzzyEq<Self> for Sphere {
     fn fuzzy_eq(&self, other: Self) -> bool {
         if self.transform.fuzzy_eq(other.transform) {
@@ -162,8 +141,10 @@ mod tests {
     #[test]
     fn changing_sphere_transformation() {
         let t = Matrix::translation(2.0, 3.0, 4.0);
-        let mut s = Sphere::default();
-        s.set_transform(t);
+        let mut s = SphereBuilder::default()
+            .transform(t)
+            .build()
+            .unwrap();
         assert_fuzzy_eq!(t, s.transform);
     }
 
@@ -218,7 +199,9 @@ mod tests {
     #[test]
     #[allow(clippy::approx_constant)]
     fn computing_the_normal_on_a_translated_sphere() {
-        let s = Sphere::new(Matrix::translation(0.0, 1.0, 0.0), Material::default());
+        let s = SphereBuilder::default()
+            .transform(Matrix::translation(0.0, 1.0, 0.0))
+            .build().unwrap();
         let p = Tuple::point(0.0, 1.70711, -0.70711);
         let n = s.normal_at(p);
 
@@ -229,10 +212,10 @@ mod tests {
 
     #[test]
     fn computing_the_normal_on_a_scaled_and_rotated_sphere() {
-        let s = Sphere::new(
-            Matrix::scaling(1.0, 0.5, 1.0) * Matrix::rotation_z(PI / 5.0),
-            Material::default(),
-        );
+        let s = SphereBuilder::default()
+            .transform(Matrix::scaling(1.0, 0.5, 1.0) * Matrix::rotation_z(PI / 5.0))
+            .build().unwrap();
+
         let sqrt2_over_2 = (2.0_f64).sqrt() / 2.0;
         let p = Tuple::point(0.0, sqrt2_over_2, -sqrt2_over_2);
         let n = s.normal_at(p);
@@ -250,10 +233,10 @@ mod tests {
 
     #[test]
     fn sphere_may_be_assigned_material() {
-        let mut s = Sphere::default();
         let m = Material::new(Color::black(), 1.0, 2.0, 3.0, 4.0);
-        s.set_material(m);
-
+        let s = SphereBuilder::default()
+            .material(m)
+            .build().unwrap();
         assert_fuzzy_eq!(m, s.material);
     }
 }

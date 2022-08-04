@@ -3,6 +3,7 @@ use ray_tracer_challenge::color::*;
 use ray_tracer_challenge::light::Light;
 use ray_tracer_challenge::material::Material;
 use ray_tracer_challenge::matrix::Matrix;
+use ray_tracer_challenge::shape::{Shape, ShapeFuncs};
 use ray_tracer_challenge::png::*;
 use ray_tracer_challenge::ray::*;
 use ray_tracer_challenge::sphere::*;
@@ -22,7 +23,7 @@ fn main() {
     let mut canvas = Canvas::new(canvas_size, canvas_size);
 
     let material = Material::with_color(Color::new(1.0, 0.2, 1.0));
-    let sphere = Sphere::new(Matrix::identity(), material);
+    let sphere: Shape = SphereBuilder::default().material(material).build().unwrap().into();
     let light = Light::point(Tuple::point(-10.0, 10.0, -10.0), Color::white());
 
     println!(
@@ -53,7 +54,7 @@ fn main() {
 
                 let color = hit
                     .object
-                    .material
+                    .material()
                     .lighting(point, light, eye, normal, false);
 
                 canvas.write_pixel(x, y, color);

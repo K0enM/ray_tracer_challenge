@@ -5,18 +5,21 @@ use crate::{
     material::Material,
     matrix::Matrix,
     ray::Ray,
-    sphere::Sphere,
+    sphere::{Sphere, SphereBuilder},
     tuple::Tuple,
+    shape::{ShapeFuncs, Shape}
 };
 
-#[derive(Debug, Clone, PartialEq, PartialOrd)]
+#[derive(Debug, Clone, PartialEq, PartialOrd, Builder)]
 pub struct World {
-    pub objects: Vec<Sphere>,
+    #[builder(default)]
+    pub objects: Vec<Shape>,
+    #[builder(default)]
     pub light_source: Light,
 }
 
 impl World {
-    pub fn new(objects: Vec<Sphere>, light_source: Light) -> Self {
+    pub fn new(objects: Vec<Shape>, light_source: Light) -> Self {
         Self {
             objects,
             light_source,
@@ -32,7 +35,7 @@ impl World {
     pub fn shade_hit(&self, comp: ComputedIntersection) -> Color {
         let in_shadow = self.is_shadowed(comp.over_point);
 
-        comp.intersection.object.material.lighting(
+        comp.intersection.object.material().lighting(
             comp.point,
             self.light_source,
             comp.eyev,
@@ -71,11 +74,18 @@ impl World {
 
 impl Default for World {
     fn default() -> Self {
-        let light = Light::point(Tuple::point(-10.0, 10.0, -10.0), Color::white());
+        let light = Light::default();
         let material = Material::new(Color::new(0.8, 1.0, 0.6), 0.1, 0.7, 0.2, 200.0);
 
-        let s1 = Sphere::with_material(material);
-        let s2 = Sphere::with_transform(Matrix::scaling(0.5, 0.5, 0.5));
+        let s1 = SphereBuilder::default()
+                            .material(material)
+                            .build()
+                            .unwrap().into();
+        let s2 = SphereBuilder::default()
+                                .transform(Matrix::scaling(0.5, 0.5, 0.5))
+                                .build()
+                                .unwrap()
+                                .into();
 
         Self::new(vec![s1, s2], light)
     }
@@ -91,8 +101,16 @@ mod tests {
     fn default_world() {
         let light = Light::point(Tuple::point(-10.0, 10.0, -10.0), Color::white());
         let material = Material::new(Color::new(0.8, 1.0, 0.6), 0.1, 0.7, 0.2, 200.0);
-        let s1 = Sphere::with_material(material);
-        let s2 = Sphere::with_transform(Matrix::scaling(0.5, 0.5, 0.5));
+        let s1 = SphereBuilder::default()
+                            .material(material)
+                            .build()
+                            .unwrap()
+                            .into();
+        let s2 = SphereBuilder::default()
+                            .transform(Matrix::scaling(0.5, 0.5, 0.5))
+                            .build()
+                            .unwrap()
+                            .into();  
 
         let w = World::default();
 
@@ -144,11 +162,11 @@ mod tests {
 
     #[test]
     fn shade_hit_is_given_intersection_in_shadow() {
-        let mut w = World {
+        let w = World { 
             light_source: Light::point(Tuple::point(0.0, 0.0, -10.0), Color::white()),
-            ..Default::default()
+            objects: vec![SphereBuilder::default().build().unwrap().into(), SphereBuilder::default().transform(Matrix::translation(0.0, 0.0, 10.0)).build().unwrap().into()],
         };
-        w.objects[1].set_transform(Matrix::translation(0.0, 0.0, 10.0));
+
         let r = Ray::new(Tuple::point(0.0, 0.0, 5.0), Tuple::vector(0.0, 0.0, 1.0));
         let i = Intersection::new(4.0, w.objects[1]);
         let comp = i.as_computed(r);
@@ -174,16 +192,22 @@ mod tests {
 
     #[test]
     fn color_with_intersection_behind_ray() {
-        let mut w = World::default();
-        w.objects[0].material.ambient = 1.0;
-        w.objects[1].material.ambient = 1.0;
+        let mat = Material {
+            ambient: 1.0,
+            ..Default::default()
+        };
+        let shapes = vec![SphereBuilder::default().material(mat).build().unwrap().into(),SphereBuilder::default().material(mat).build().unwrap().into()];
+        let w = WorldBuilder::default()
+            .objects(shapes)
+            .build()
+            .unwrap();
 
         let inner = w.objects[1];
 
         let r = Ray::new(Tuple::point(0.0, 0.0, 0.75), Tuple::vector(0.0, 0.0, -1.0));
         let c = w.color_at(r);
 
-        assert_fuzzy_eq!(inner.material.color, c);
+        assert_fuzzy_eq!(inner.material().color, c);
     }
 
     #[test]

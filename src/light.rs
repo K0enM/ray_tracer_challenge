@@ -12,6 +12,12 @@ pub struct Light {
     pub intensity: Color,
 }
 
+impl Default for Light {
+    fn default() -> Self {
+        Self::point(Tuple::point(-10.0, 10.0, -10.0), Color::white())
+    }
+}
+
 impl Light {
     pub fn new(typ: LightType, position: Tuple, intensity: Color) -> Self {
         Self {

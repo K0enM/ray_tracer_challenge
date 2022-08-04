@@ -11,7 +11,7 @@ where
 
 impl<const D: usize> Default for Matrix<D> {
     fn default() -> Self {
-        Self::new()
+        Self::identity()
     }
 }
 

@@ -3,6 +3,7 @@ use ray_tracer_challenge::color::*;
 use ray_tracer_challenge::matrix::Matrix;
 use ray_tracer_challenge::png::*;
 use ray_tracer_challenge::ray::*;
+use ray_tracer_challenge::shape::{Shape, ShapeFuncs};
 use ray_tracer_challenge::sphere::*;
 use ray_tracer_challenge::tuple::*;
 use std::fs::write;
@@ -21,10 +22,12 @@ fn main() {
 
     let mut canvas = Canvas::new(canvas_size, canvas_size);
 
-    let mut sphere = Sphere::default();
-    sphere.set_transform(
-        Matrix::shearing(1.0, 0.0, 0.0, 0.0, 0.0, 0.0) * Matrix::scaling(0.5, 1.0, 1.0),
-    );
+    let sphere: Shape = SphereBuilder::default()
+                                .transform(Matrix::shearing(1.0, 0.0, 0.0, 0.0, 0.0, 0.0) * Matrix::scaling(0.5, 1.0, 1.0))
+                                .build()
+                                .unwrap()
+                                .into();
+
 
     println!(
         "Raytracing {} pixels. Please be patient...",

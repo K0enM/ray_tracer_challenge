@@ -3,7 +3,7 @@ use std::fs::write;
 
 use ray_tracer_challenge::{
     camera::Camera, color::Color, light::Light, material::Material, matrix::Matrix, png::ToPNG,
-    sphere::Sphere, tuple::Tuple, world::World,
+    sphere::{Sphere, SphereBuilder}, tuple::Tuple, world::World, shape::Shape,
 };
 
 fn main() {
@@ -14,19 +14,35 @@ fn main() {
     };
 
     let floor_transform = Matrix::scaling(10.0, 0.01, 10.0);
-    let floor = Sphere::new(floor_transform, floor_material);
+
+    let floor = SphereBuilder::default()
+                            .material(floor_material)
+                            .transform(floor_transform)
+                            .build()
+                            .unwrap()
+                            .into();
 
     let left_wall_transform = Matrix::translation(0.0, 0.0, 5.0)
         * Matrix::rotation_y(-PI / 4.0)
         * Matrix::rotation_x(PI / 2.0)
         * Matrix::scaling(10.0, 0.01, 10.0);
-    let left_wall = Sphere::new(left_wall_transform, floor_material);
+    let left_wall = SphereBuilder::default()
+    .material(floor_material)
+    .transform(left_wall_transform)
+    .build()
+    .unwrap()
+    .into();
 
     let right_wall_transform = Matrix::translation(0.0, 0.0, 5.0)
         * Matrix::rotation_y(PI / 4.0)
         * Matrix::rotation_x(PI / 2.0)
         * Matrix::scaling(10.0, 0.01, 10.0);
-    let right_wall = Sphere::new(right_wall_transform, floor_material);
+    let right_wall = SphereBuilder::default()
+    .material(floor_material)
+    .transform(right_wall_transform)
+    .build()
+    .unwrap()
+    .into();
 
     let middle_material = Material {
         color: Color::new(0.5, 1.0, 0.1),
@@ -34,10 +50,13 @@ fn main() {
         specular: 0.3,
         ..Default::default()
     };
-    let middle = Sphere::new(
-        Matrix::translation(-0.5, 1.0, 0.5) * Matrix::scaling(0.5, 0.5, 0.5),
-        middle_material,
-    );
+
+    let middle: Shape = SphereBuilder::default()
+                            .material(middle_material)
+                            .transform(Matrix::translation(-0.5, 1.0, 0.5) * Matrix::scaling(0.5, 0.5, 0.5))
+                            .build()
+                            .unwrap()
+                            .into();
 
     let right_material = Material {
         color: Color::new(0.5, 1.0, 0.1),
@@ -45,10 +64,13 @@ fn main() {
         specular: 0.3,
         ..Default::default()
     };
-    let right = Sphere::new(
-        Matrix::translation(1.5, 0.5, -0.5) * Matrix::scaling(0.33, 0.33, 0.33),
-        right_material,
-    );
+
+    let right = SphereBuilder::default()
+        .material(right_material)
+        .transform(Matrix::translation(1.5, 0.5, -0.5) * Matrix::scaling(0.33, 0.33, 0.33))
+        .build()
+        .unwrap()
+        .into();
 
     let left_material = Material {
         color: Color::new(1.0, 0.8, 0.1),
@@ -56,10 +78,13 @@ fn main() {
         specular: 0.3,
         ..Default::default()
     };
-    let left = Sphere::new(
-        Matrix::translation(-1.5, 0.33, -0.75) * Matrix::scaling(0.33, 0.33, 0.33),
-        left_material,
-    );
+
+    let left = SphereBuilder::default()
+        .material(left_material)
+        .transform(Matrix::translation(-1.5, 0.33, -0.75) * Matrix::scaling(0.33, 0.33, 0.33))
+        .build()
+        .unwrap()
+        .into();
 
     let light = Light::point(Tuple::point(-10.0, 10.0, -10.0), Color::white());
 

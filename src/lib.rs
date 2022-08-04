@@ -1,5 +1,7 @@
 #![allow(incomplete_features)]
 #![feature(generic_const_exprs)]
+#[macro_use]
+extern crate derive_builder;
 
 pub mod camera;
 pub mod canvas;
@@ -17,3 +19,4 @@ pub mod tuple;
 pub mod two_dimensional;
 pub mod util;
 pub mod world;
+pub mod shape;
