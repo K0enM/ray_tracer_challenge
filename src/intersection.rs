@@ -1,7 +1,6 @@
 use crate::{
     ray::Ray,
     shape::{Shape, ShapeFuncs},
-    sphere::{Sphere, SphereBuilder},
     tuple::Tuple,
     util::EPSILON,
 };
@@ -90,7 +89,7 @@ mod tests {
         assert_fuzzy_eq,
         matrix::Matrix,
         ray::Ray,
-        sphere::Sphere,
+        sphere::{Sphere, SphereBuilder},
         tuple::Tuple,
         util::{FuzzyEq, EPSILON},
     };

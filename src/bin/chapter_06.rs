@@ -2,7 +2,7 @@ use ray_tracer_challenge::canvas::*;
 use ray_tracer_challenge::color::*;
 use ray_tracer_challenge::light::Light;
 use ray_tracer_challenge::material::Material;
-use ray_tracer_challenge::matrix::Matrix;
+
 use ray_tracer_challenge::png::*;
 use ray_tracer_challenge::ray::*;
 use ray_tracer_challenge::shape::{Shape, ShapeFuncs};

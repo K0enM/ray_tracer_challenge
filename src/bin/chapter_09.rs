@@ -9,7 +9,7 @@ use ray_tracer_challenge::{
     matrix::Matrix,
     png::ToPNG,
     shape::Shape,
-    sphere::{Sphere, SphereBuilder},
+    sphere::{SphereBuilder},
     tuple::Tuple,
     world::World, plane::PlaneBuilder, pattern::{Pattern, RingPatternBuilder},
 };

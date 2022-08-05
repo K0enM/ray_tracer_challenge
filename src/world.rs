@@ -6,7 +6,7 @@ use crate::{
     matrix::Matrix,
     ray::Ray,
     shape::{Shape, ShapeFuncs},
-    sphere::{Sphere, SphereBuilder},
+    sphere::{SphereBuilder},
     tuple::Tuple,
 };
 

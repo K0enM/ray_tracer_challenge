@@ -1,7 +1,7 @@
 use std::sync::Mutex;
 
 use crate::{canvas::Canvas, matrix::Matrix, ray::Ray, tuple::Tuple, world::World};
-use indicatif::ProgressBar;
+
 use itertools::Itertools;
 use rayon::prelude::*;
 
