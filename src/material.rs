@@ -1,4 +1,4 @@
-use crate::{color::Color, light::Light, tuple::Tuple, util::FuzzyEq};
+use crate::{color::Color, light::Light, tuple::Tuple, util::FuzzyEq, pattern::{Pattern, PatternFuncs}};
 
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Builder)]
 pub struct Material {
@@ -7,6 +7,7 @@ pub struct Material {
     pub diffuse: f64,
     pub specular: f64,
     pub shininess: f64,
+    pub pattern: Option<Pattern>,
 }
 
 impl Material {
@@ -17,6 +18,7 @@ impl Material {
             diffuse,
             specular,
             shininess,
+            pattern: None
         }
     }
 
@@ -35,7 +37,11 @@ impl Material {
         normalv: Tuple,
         in_shadow: bool,
     ) -> Color {
-        let effective_color = self.color * light.intensity;
+        let color  = match self.pattern {
+            Some(p) => p.color_at(point),
+            None => self.color
+        };
+        let effective_color = color * light.intensity;
         let lightv = (light.position - point).normalize();
         let ambient = effective_color * self.ambient;
         let diffuse;
@@ -88,7 +94,7 @@ impl FuzzyEq<Self> for Material {
 
 #[cfg(test)]
 mod tests {
-    use crate::assert_fuzzy_eq;
+    use crate::{assert_fuzzy_eq, pattern::StripePattern};
 
     use super::*;
 
@@ -100,6 +106,7 @@ mod tests {
         assert_fuzzy_eq!(0.9, m.diffuse);
         assert_fuzzy_eq!(0.9, m.specular);
         assert_fuzzy_eq!(200.0, m.shininess);
+        assert_eq!(None, m.pattern)
     }
 
     #[test]
@@ -193,5 +200,27 @@ mod tests {
         let actual = material.lighting(position, light, eyev, normalv, in_shadow);
 
         assert_fuzzy_eq!(expected, actual);
+    }
+
+    #[test]
+    fn lighting_with_stripe_pattern_applied() {
+        let material = MaterialBuilder::default()
+            .pattern(Some(StripePattern::default().into()))
+            .ambient(1.0)
+            .diffuse(0.0)
+            .specular(0.0)
+            .color(Color::white())
+            .shininess(200.0)
+            .build()
+            .unwrap();
+
+        let eyev = Tuple::vector(0.0, 0.0, -1.0);
+        let normalv = Tuple::vector(0.0, 0.0, -1.0);
+        let light = Light::point(Tuple::point(0.0, 0.0, -10.0), Color::white());
+
+        let c1 = material.lighting(Tuple::point(0.9, 0.0, 0.0), light, eyev, normalv, false);
+        assert_fuzzy_eq!(Color::white(), c1);
+        let c2 = material.lighting(Tuple::point(1.1, 0.0, 0.0), light, eyev, normalv, false);
+        assert_fuzzy_eq!(Color::black(), c2);
     }
 }

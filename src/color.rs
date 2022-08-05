@@ -63,6 +63,13 @@ impl Color {
     }
 }
 
+impl Default for Color {
+    fn default() -> Self {
+        Self::black()
+    }
+}
+
+
 impl FuzzyEq<Self> for Color {
     fn fuzzy_eq(&self, other: Self) -> bool {
         self.red.fuzzy_eq(other.red)
