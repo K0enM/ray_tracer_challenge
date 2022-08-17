@@ -15,3 +15,6 @@ rayon = "1.5.3"
 [profile.release]
 opt-level = 3
 lto = true
+
+[features]
+progress_bar = []

@@ -1,7 +1,8 @@
 use std::sync::Mutex;
 
 use crate::{canvas::Canvas, matrix::Matrix, ray::Ray, tuple::Tuple, world::World};
-
+#[allow(unused_imports)]
+use indicatif::{ProgressBar, ProgressStyle};
 use itertools::Itertools;
 use rayon::prelude::*;
 
@@ -64,6 +65,15 @@ impl Camera {
     }
 
     pub fn render(&self, w: &World) -> Canvas {
+        #[cfg(feature = "progress_bar")]
+            let sty = ProgressStyle::with_template(
+                "[{elapsed_precise}] {bar:100.white} {pos:>7}/{len:7} {msg}",
+            )
+            .unwrap();
+            #[cfg(feature = "progress_bar")]
+            let pb = ProgressBar::new((self.hsize * self.vsize) as u64);
+            #[cfg(feature = "progress_bar")]
+            pb.set_style(sty);
         let canvas_mutex = Mutex::new(Canvas::new(self.hsize, self.vsize));
 
         (0..self.hsize - 1)
@@ -74,9 +84,13 @@ impl Camera {
                 let color = w.color_at(ray);
                 let mut canvas = canvas_mutex.lock().unwrap();
                 canvas.write_pixel(x, y, color);
+                #[cfg(feature = "progress_bar")]
+                pb.inc(1)
             });
+        #[cfg(feature = "progress_bar")]
+        pb.finish_with_message("Done rendering!");
         canvas_mutex.into_inner().unwrap()
-    }
+        }
 }
 
 #[cfg(test)]
